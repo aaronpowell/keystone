@@ -210,10 +210,10 @@ input UserUpdateInput {
   name: String
   email: String
   password: String
-  cart: CartItemRelateToManyInput
-  orders: OrderRelateToManyInput
-  role: RoleRelateToOneInput
-  products: ProductRelateToManyInput
+  cart: CartItemRelateToManyForUpdateInput
+  orders: OrderRelateToManyForUpdateInput
+  role: RoleRelateToOneForUpdateInput
+  products: ProductRelateToManyForUpdateInput
   passwordResetToken: String
   passwordResetIssuedAt: String
   passwordResetRedeemedAt: String
@@ -256,10 +256,10 @@ input UserCreateInput {
   name: String
   email: String
   password: String
-  cart: CartItemRelateToManyInput
-  orders: OrderRelateToManyInput
-  role: RoleRelateToOneInput
-  products: ProductRelateToManyInput
+  cart: CartItemRelateToManyForCreateInput
+  orders: OrderRelateToManyForCreateInput
+  role: RoleRelateToOneForCreateInput
+  products: ProductRelateToManyForCreateInput
   passwordResetToken: String
   passwordResetIssuedAt: String
   passwordResetRedeemedAt: String
@@ -351,10 +351,10 @@ input ProductOrderByInput {
 input ProductUpdateInput {
   name: String
   description: String
-  photo: ProductImageRelateToOneInput
+  photo: ProductImageRelateToOneForUpdateInput
   status: String
   price: Int
-  user: UserRelateToOneInput
+  user: UserRelateToOneForUpdateInput
 }
 
 input ProductImageRelateToOneInput {
@@ -379,10 +379,10 @@ input ProductsUpdateInput {
 input ProductCreateInput {
   name: String
   description: String
-  photo: ProductImageRelateToOneInput
+  photo: ProductImageRelateToOneForCreateInput
   status: String
   price: Int
-  user: UserRelateToOneInput
+  user: UserRelateToOneForCreateInput
 }
 
 input ProductsCreateInput {
@@ -492,7 +492,7 @@ input ProductImageOrderByInput {
 input ProductImageUpdateInput {
   image: Upload
   altText: String
-  product: ProductRelateToOneInput
+  product: ProductRelateToOneForUpdateInput
 }
 
 """
@@ -515,7 +515,7 @@ input ProductImagesUpdateInput {
 input ProductImageCreateInput {
   image: Upload
   altText: String
-  product: ProductRelateToOneInput
+  product: ProductRelateToOneForCreateInput
 }
 
 input ProductImagesCreateInput {
@@ -575,8 +575,8 @@ input CartItemOrderByInput {
 
 input CartItemUpdateInput {
   quantity: Int
-  product: ProductRelateToOneInput
-  user: UserRelateToOneInput
+  product: ProductRelateToOneForUpdateInput
+  user: UserRelateToOneForUpdateInput
 }
 
 input CartItemsUpdateInput {
@@ -586,8 +586,8 @@ input CartItemsUpdateInput {
 
 input CartItemCreateInput {
   quantity: Int
-  product: ProductRelateToOneInput
-  user: UserRelateToOneInput
+  product: ProductRelateToOneForCreateInput
+  user: UserRelateToOneForCreateInput
 }
 
 input CartItemsCreateInput {
@@ -680,10 +680,10 @@ input OrderItemOrderByInput {
 input OrderItemUpdateInput {
   name: String
   description: String
-  photo: ProductImageRelateToOneInput
+  photo: ProductImageRelateToOneForUpdateInput
   price: Int
   quantity: Int
-  order: OrderRelateToOneInput
+  order: OrderRelateToOneForUpdateInput
 }
 
 input OrderRelateToOneInput {
@@ -701,10 +701,10 @@ input OrderItemsUpdateInput {
 input OrderItemCreateInput {
   name: String
   description: String
-  photo: ProductImageRelateToOneInput
+  photo: ProductImageRelateToOneForCreateInput
   price: Int
   quantity: Int
-  order: OrderRelateToOneInput
+  order: OrderRelateToOneForCreateInput
 }
 
 input OrderItemsCreateInput {
@@ -809,8 +809,8 @@ input OrderOrderByInput {
 
 input OrderUpdateInput {
   total: Int
-  items: OrderItemRelateToManyInput
-  user: UserRelateToOneInput
+  items: OrderItemRelateToManyForUpdateInput
+  user: UserRelateToOneForUpdateInput
   charge: String
 }
 
@@ -828,8 +828,8 @@ input OrdersUpdateInput {
 
 input OrderCreateInput {
   total: Int
-  items: OrderItemRelateToManyInput
-  user: UserRelateToOneInput
+  items: OrderItemRelateToManyForCreateInput
+  user: UserRelateToOneForCreateInput
   charge: String
 }
 
@@ -961,7 +961,7 @@ input RoleUpdateInput {
   canManageRoles: Boolean
   canManageCart: Boolean
   canManageOrders: Boolean
-  assignedTo: UserRelateToManyInput
+  assignedTo: UserRelateToManyForUpdateInput
 }
 
 input UserRelateToManyInput {
@@ -984,7 +984,7 @@ input RoleCreateInput {
   canManageRoles: Boolean
   canManageCart: Boolean
   canManageOrders: Boolean
-  assignedTo: UserRelateToManyInput
+  assignedTo: UserRelateToManyForCreateInput
 }
 
 input RolesCreateInput {
