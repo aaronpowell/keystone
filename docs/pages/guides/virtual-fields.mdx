@@ -49,6 +49,35 @@ list({
           return a + b;
         },
       }),
+      graphQLReturnFragment: '(a: 1, b: 1)'
+    }),
+  },
+});
+```
+
+If you return an object type, you will need to provide `graphQLReturnFragment` so that the Admin UI knows what to fetch.
+
+```ts
+import { schema } from '@keystone-next/types';
+import { virtual } from '@keystone-next/fields';
+import { list } from '@keystone-next/keystone/schema';
+
+list({
+  fields: {
+    something: virtual({
+      field: schema.field({
+        type: schema.object<{ a: string; b: string }>()({
+          name: 'Something',
+          fields: {
+            a: schema.field({ type: schema.String }),
+            b: schema.field({ type: schema.String }),
+          },
+        }),
+        resolve() {
+          return { a: 'something', b: 'another thing' };
+        },
+      }),
+      graphQLReturnFragment: '{ a, b }',
     }),
   },
 });
@@ -98,7 +127,7 @@ graphql`
 #### Writing resolvers
 
 To do anything other than just return a field from the RootVal, you need to provide a resolver.
-Note: TypeScript will force you to provide a resolve function if the field in the RootVal and the GraphQL field don't match. That's why you need to provide a resolver to the field on 
+Note: TypeScript will force you to provide a resolve function if the field in the RootVal and the GraphQL field don't match. That's why you need to provide a resolver to the field on
 
 ```ts
 const Person = schema.object<{ name: string }>()({
@@ -124,7 +153,7 @@ returns the object.
 
 ```ts
 type PersonRootVal = { name: string; friends: PersonRootVal[] };
-   *
+
 const Person: schema.ObjectType<PersonRootVal> = schema.object<PersonRootVal>()({
   name: "Person",
   fields: () => ({
@@ -136,7 +165,7 @@ const Person: schema.ObjectType<PersonRootVal> = schema.object<PersonRootVal>()(
 
 ## Using GraphQL types from other lists
 
-To use GraphQL types from other lists in a virtual field (e.g. to express a polymorphic relationship), you can provide a function to the virtual field that provides a.
+To use GraphQL types from other lists in a virtual field (e.g. to express a polymorphic relationship), you can provide a function to the virtual field that accepts an object contains the GraphQL types for all the lists and returns the GraphQL field.
 
 ```ts
 import { schema } from '@keystone-next/types';

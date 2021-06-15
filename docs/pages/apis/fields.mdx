@@ -555,12 +555,10 @@ export default config({
 
 A `virtual` field represents a value which is computed a read time, rather than stored in the database.
 
-(coming soon)
-
 Options:
 
-- `field` (required):
-- `graphQLReturnFragment` (default: `undefined` ):
+- `field` (required): The GraphQL field that defines the type, resolver and arguments
+- `graphQLReturnFragment` (default: `''` ): The fields that should be fetched when if the GraphQL fields returns an object
 
 ```typescript
 import { config, createSchema, list } from '@keystone-next/keystone/schema';
