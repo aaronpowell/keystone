@@ -1,31 +1,39 @@
 import { Markdown } from '../../components/Page';
 import { ComingSoon } from '../../components/ComingSoon';
 
-# How To Use Virtual Fields
+# Virtual Fields
 
-Virtual fields allow you to add arbitrary GraphQL fields to your Keystone list.
+Keystone lets you define your data model in terms of `lists`, which have `fields`.
+Most lists will have some [scalar fields](../apis/fields#scalar-types), such as `text` and `integer` fields, which are stored in your database.
 
-Virtual fields need to specify at least two things:
+It can also be helpful to have read-only fields which are computed on the fly when you query them.
+Keystone lets you do this with the `virtual` field type.
 
-- A GraphQL type (below, `Float` is used)
-- A resolver that returns a value that matches that type
+Virtual fields provide a powerful way to extend your GraphQL API.
+In this guide we'll introduce the syntax for adding virtual fields, and show how to build up from a simple to a complex example.
 
-```ts
-import { schema } from '@keystone-next/types';
-import { virtual } from '@keystone-next/fields';
-import { list } from '@keystone-next/keystone/schema';
+## Random number
 
-list({
-  fields: {
-    randomNumber: virtual({
-      field: schema.field({
-        type: schema.Float,
-        resolve() {
-          return Math.random();
-        },
-      }),
+
+```typescript
+import { config, createSchema, list } from '@keystone-next/keystone/schema';
+import { text, relationship } from '@keystone-next/fields';
+
+export default config({
+  lists: createSchema({
+    Example: list({
+      fields: {
+        randomNumber: virtual({
+          field: schema.field({
+            type: schema.Int,
+            resolve() {
+              return  Math.round(Math.random() * 10);
+            },
+          }),
+        }),
+      },
     }),
-  },
+  }),
 });
 ```
 
