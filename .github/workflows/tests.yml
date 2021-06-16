@@ -198,7 +198,7 @@ jobs:
       - name: Install Dependencies
         run: yarn
       - name: Unit tests
-        run: yarn jest --ci --maxWorkers=1 --testPathIgnorePatterns=api-tests --testPathIgnorePatterns=examples-smoke-tests
+        run: yarn jest --ci --maxWorkers=1 --testPathIgnorePatterns=api-tests --testPathIgnorePatterns=examples-smoke-tests --testPathIgnorePatterns=examples/testing
         env:
           CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
           CLOUDINARY_KEY: ${{ secrets.CLOUDINARY_KEY }}
