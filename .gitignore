@@ -119,5 +119,7 @@ tags
 projects/
 temp/
 
+.keystone-tests
+
 # SQLite databases
 *.db

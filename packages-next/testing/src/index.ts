@@ -49,7 +49,6 @@ export async function setupTestEnv({
   const isolateRuns = config.testing?.isolateRuns || false;
   let artifactPath = path.resolve(config.testing?.artifactPath || '.keystone/tests');
 
-  // get prisma client
   const artifacts = await getCommittedArtifacts(graphQLSchema, config);
   const hash = _hashPrismaSchema(artifacts.prisma);
 
@@ -78,23 +77,11 @@ export async function setupTestEnv({
   // (config, graphQLSchema, createContext, dev, projectAdminPath, isVerbose)
   const app = await createExpressServer(config, graphQLSchema, createContext, true, '', false);
 
-  const graphQLRequest: GraphQLRequest = ({
-    query,
-    variables = undefined,
-    headers = {},
-    operationName,
-  }) => {
-    let request = supertest(app)
+  const graphQLRequest: GraphQLRequest = ({ query, variables = undefined, operationName }) =>
+    supertest(app)
       .post('/api/graphql')
       .send({ query, variables, operationName })
       .set('Accept', 'application/json');
-
-    Object.entries(headers).forEach(([key, value]) => {
-      request = request.set(key, value);
-    });
-
-    return request;
-  };
 
   const testArgs = { context: createContext(), config, graphQLRequest };
   return { connect, disconnect, testArgs };

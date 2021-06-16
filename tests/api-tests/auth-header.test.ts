@@ -93,9 +93,8 @@ describe('Auth testing', () => {
       for (const [listKey, data] of Object.entries(initialData)) {
         await context.sudo().lists[listKey].createMany({ data });
       }
-      const {
-        body: { data, errors },
-      } = await graphQLRequest({ query: '{ allUsers { id } }' });
+      const { body } = await graphQLRequest({ query: '{ allUsers { id } }' });
+      const { data, errors } = body;
       expect(data).toEqual({ allUsers: null });
       expect(errors).toMatchObject([{ name: 'AccessDeniedError' }]);
     })
@@ -116,13 +115,11 @@ describe('Auth testing', () => {
         );
 
         expect(sessionToken).toBeTruthy();
-        const {
-          body: { data, errors },
-        } = await graphQLRequest({
-          headers: { Authorization: `Bearer ${sessionToken}` },
-          query: '{ allUsers { id } }',
-        });
-
+        const { body } = await graphQLRequest({ query: '{ allUsers { id } }' }).set(
+          'Authorization',
+          `Bearer ${sessionToken}`
+        );
+        const { data, errors } = body;
         expect(data).toHaveProperty('allUsers');
         expect(data.allUsers).toHaveLength(initialData.User.length);
         expect(errors).toBe(undefined);
@@ -143,13 +140,11 @@ describe('Auth testing', () => {
 
         expect(sessionToken).toBeTruthy();
 
-        const {
-          body: { data, errors },
-        } = await graphQLRequest({
-          headers: { Cookie: `keystonejs-session=${sessionToken}` },
-          query: '{ allUsers { id } }',
-        });
-
+        const { body } = await graphQLRequest({ query: '{ allUsers { id } }' }).set(
+          'Cookie',
+          `keystonejs-session=${sessionToken}`
+        );
+        const { data, errors } = body;
         expect(data).toHaveProperty('allUsers');
         expect(data.allUsers).toHaveLength(initialData.User.length);
         expect(errors).toBe(undefined);

@@ -6,3 +6,4 @@ coverage
 **/dist
 **/.next
 **/.keystone
+.keystone-tests
