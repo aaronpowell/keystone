@@ -14,6 +14,7 @@ In this guide we'll introduce the syntax for adding virtual fields, and show how
 
 ## Random number
 
+We'll start with a list called `Example` and create a virtual field called `randomNumber`.
 
 ```typescript
 import { config, createSchema, list } from '@keystone-next/keystone/schema';
@@ -36,6 +37,28 @@ export default config({
   }),
 });
 ```
+
+We can now run a GraphQL query and request the `randomNumber` field on one our items.
+
+```graphql
+{
+  Example(id: "1") {
+    id
+    randomNumber
+  }
+}
+```
+
+we will get the response
+
+```javascript
+{ Example: { id: "1", randomNumber: 7 } }
+```
+
+The value of `randomNumber` is generated from the `resolve` function, which returns a random number from 1 to 10.
+Each time you run this query you can expect to get a different random number back.
+
+## foo
 
 They can also optionally specify `args`,
 
