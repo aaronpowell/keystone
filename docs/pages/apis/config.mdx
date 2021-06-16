@@ -22,6 +22,7 @@ export default config({
   graphql: { /* ... */ },
   extendGraphqlSchema: { /* ... */ },
   images: { /* ... */ },
+  testing: { /* ... */ },
   experimental: { /* ... */ },
 });
 ```
@@ -327,6 +328,28 @@ Options:
 - `local`: Configuration options when using the `local` storage target.
   - `storagePath`: The path local images are uploaded to.
   - `baseUrl`: The base of the URL local images will be served from, outside of keystone.
+
+## testing
+
+The [`@keystone-next/testing`](../guides/testing) package provides tools to help you run tests against your GraphQL API.
+
+Options:
+
+- `isolateRuns` (default: `false`): If you need to run tests against more than one config object in your tests you can set this option to `true`, which will ensure that each config is isolated in its own artifact directory and database schema.
+- `artifactPath` (default: `'./keystone/tests'`): The location to write generated artifacts such as the GraphQL and Prisma schemas.
+  If `isolateRuns` is `true` then artifacts will be written to a subirectory based on a hash of the schema.
+
+```typescript
+import { config } from '@keystone-next/keystone/schema';
+
+export default config({
+  testing: {
+    isolateRuns: true,
+    artifactPath: './keystone/tests',
+  }
+  /* ... */
+});
+```
 
 ## experimental
 

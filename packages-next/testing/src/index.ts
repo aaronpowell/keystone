@@ -13,10 +13,9 @@ import {
 } from '@keystone-next/keystone/artifacts';
 import type { KeystoneConfig, KeystoneContext } from '@keystone-next/types';
 
-type GraphQLRequest = (arg: {
+export type GraphQLRequest = (arg: {
   query: string;
   variables?: Record<string, any>;
-  headers?: Record<string, any>;
   operationName?: string;
 }) => Test;
 
