@@ -1,7 +1,7 @@
 import { createSchema, list } from '@keystone-next/keystone/schema';
 import { select, relationship, text, timestamp, virtual } from '@keystone-next/fields';
 import { schema } from '@keystone-next/types';
-schema.field;
+
 export const lists = createSchema({
   Post: list({
     fields: {
@@ -75,17 +75,14 @@ export const lists = createSchema({
         field: lists =>
           schema.field({
             type: schema.list(schema.nonNull(lists.Post.types.output)),
-            async resolve(item, args, context) {
+            resolve(item, args, context) {
               // this could have some logic to get posts that are actually related to this one somehow
               // this is a just a naive "get the three latest posts that aren't this one"
-              const { author } = await context.lists.Post.findOne({ where: { id: item.id }, query: 'author { name }' });
-
-              const ret = await context.db.lists.Post.findMany({
+              return context.db.lists.Post.findMany({
                 first: 3,
                 where: { id_not: item.id, status: 'published' },
                 orderBy: [{ publishDate: 'desc' }],
               });
-              return ret;
             },
           }),
         graphQLReturnFragment: '{ title }',
