@@ -67,8 +67,6 @@ The `virtual` field accepts a configuration option called `field`, which is a `s
 In our example we passed in two required options to `schema.field()`.
 The option `type: schema.String` specifies the GraphQL type of our virtual field, and `resolve() { ... }` defines the [GraphQL resolver](https://graphql.org/learn/execution/#root-fields-resolvers) to be executed when this field is queried.
 
-We can use `schema.field()` to build up more powerful virtual fields which accept arguments, and return more complex types.
-
 ## Resolver arguments
 
 The `resolve` function accepts arguments which let you write more sophisticated virtual fields.
@@ -199,6 +197,8 @@ list({
   },
 });
 ```
+
+## Admin UI
 
 ## GraphQL Types
 

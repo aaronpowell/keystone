@@ -2,6 +2,30 @@ import { createSchema, list } from '@keystone-next/keystone/schema';
 import { select, relationship, text, timestamp, virtual } from '@keystone-next/fields';
 import { schema } from '@keystone-next/types';
 
+const postCounts = schema.object<{ content: string }>()({
+  name: 'PostCounts',
+  fields: {
+    words: schema.field({
+      type: schema.Int,
+      resolve({ content }) {
+        return content.split(' ').length;
+      },
+    }),
+    sentences: schema.field({
+      type: schema.Int,
+      resolve({ content }) {
+        return content.split('.').length;
+      },
+    }),
+    paragraphs: schema.field({
+      type: schema.Int,
+      resolve({ content }) {
+        return content.split('\n\n').length;
+      },
+    }),
+  },
+});
+
 export const lists = createSchema({
   Post: list({
     fields: {
@@ -26,29 +50,7 @@ export const lists = createSchema({
       // A virtual field returning a custom GraphQL object type.
       counts: virtual({
         field: schema.field({
-          type: schema.object<{ content: string }>()({
-            name: 'PostCounts',
-            fields: {
-              words: schema.field({
-                type: schema.Int,
-                resolve({ content }) {
-                  return content.split(' ').length;
-                },
-              }),
-              sentences: schema.field({
-                type: schema.Int,
-                resolve({ content }) {
-                  return content.split('.').length;
-                },
-              }),
-              paragraphs: schema.field({
-                type: schema.Int,
-                resolve({ content }) {
-                  return content.split('\n\n').length;
-                },
-              }),
-            },
-          }),
+          type: postCounts,
           resolve(item: any) {
             return { content: item.content || '' };
           },
