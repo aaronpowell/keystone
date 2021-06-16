@@ -1,5 +1,5 @@
 import { KeystoneContext } from '@keystone-next/types';
-import { setupTestRunner } from '@keystone-next/testing';
+import { setupTestEnv, setupTestRunner, TestEnv } from '@keystone-next/testing';
 import config from './keystone';
 
 const asUser = (context: KeystoneContext, itemId?: number) =>
@@ -7,7 +7,7 @@ const asUser = (context: KeystoneContext, itemId?: number) =>
 
 const runner = setupTestRunner({ config });
 
-describe(`Example test`, () => {
+describe('Example tests using test runner', () => {
   test(
     'Create a Person',
     runner(async ({ context }) => {
@@ -20,4 +20,31 @@ describe(`Example test`, () => {
       expect(person.password.isSet).toEqual(true);
     })
   );
+});
+
+describe('Example tests using test environment', () => {
+  let testEnv: TestEnv, context: KeystoneContext;
+  let person: { id: string };
+  beforeAll(async () => {
+    testEnv = await setupTestEnv({ config });
+    context = testEnv.testArgs.context;
+
+    await testEnv.connect();
+
+    person = (await context.lists.Person.createOne({
+      data: { name: 'Alice', email: 'alice@example.com', password: 'super-secret' },
+    })) as { id: string };
+  });
+  afterAll(async () => {
+    await testEnv.disconnect();
+  });
+
+  test('Update the persons email address', async () => {
+    const { email } = await context.lists.Person.updateOne({
+      id: person.id,
+      data: { email: 'new-email@example.com' },
+      query: 'email',
+    });
+    expect(email).toEqual('new-email@example.com');
+  });
 });
