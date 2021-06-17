@@ -1,5 +1,11 @@
 # @keystone-next/types
 
+## 20.0.1
+
+### Patch Changes
+
+- [#5910](https://github.com/keystonejs/keystone/pull/5910) [`50ad1ce6b`](https://github.com/keystonejs/keystone/commit/50ad1ce6be90f5fb2481840dbd01328b6f629432) Thanks [@mitchellhamilton](https://github.com/mitchellhamilton)! - Fixed generated list types to allow passing a value directly when a GraphQL list of the value is expected
+
 ## 20.0.0
 
 ### Major Changes
