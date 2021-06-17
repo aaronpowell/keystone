@@ -2,8 +2,8 @@ import { KeystoneContext } from '@keystone-next/types';
 import { setupTestEnv, setupTestRunner, TestEnv } from '@keystone-next/testing';
 import config from './keystone';
 
-const asUser = (context: KeystoneContext, itemId?: number) =>
-  context.withSession({ itemId, data: {} });
+// const asUser = (context: KeystoneContext, itemId?: number) =>
+//   context.withSession({ itemId, data: {} });
 
 const runner = setupTestRunner({ config });
 
