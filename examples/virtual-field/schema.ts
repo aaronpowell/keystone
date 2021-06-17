@@ -94,23 +94,6 @@ export const lists = createSchema({
         }),
         graphQLArgs: { length: 10 },
       }),
-      // A virtual field which returns a type derived from a Keystone list.
-      relatedPosts: virtual({
-        field: lists =>
-          schema.field({
-            type: schema.list(schema.nonNull(lists.Post.types.output)),
-            resolve(item, args, context) {
-              // this could have some logic to get posts that are actually related to this one somehow
-              // this is a just a naive "get the three latest posts that aren't this one"
-              return context.db.lists.Post.findMany({
-                first: 3,
-                where: { id_not: item.id, status: 'published' },
-                orderBy: [{ publishDate: 'desc' }],
-              });
-            },
-          }),
-        graphQLReturnFragment: '{ title }',
-      }),
       publishDate: timestamp(),
       author: relationship({ ref: 'Author.posts', many: false }),
     },
@@ -120,6 +103,24 @@ export const lists = createSchema({
       name: text({ isRequired: true }),
       email: text({ isRequired: true, isUnique: true }),
       posts: relationship({ ref: 'Post.author', many: true }),
+      // A virtual field which returns a type derived from a Keystone list.
+      latestPost: virtual({
+        field: lists =>
+          schema.field({
+            type: lists.Post.types.output,
+            async resolve(item, args, context) {
+              const { posts } = await context.lists.Author.findOne({
+                where: { id: item.id },
+                query:
+                  'posts(orderBy: { publishDate: desc } where: { status: published } first: 1 ) { id }',
+              });
+              if (posts.length > 0) {
+                return context.db.lists.Post.findOne({ where: { id: posts[0].id } });
+              }
+            },
+          }),
+        graphQLReturnFragment: '{ title publishDate }',
+      }),
     },
   }),
 });

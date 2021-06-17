@@ -134,13 +134,19 @@ export default config({
                 defaultValue: 200
               }),
             },
-            resolve(item, args) {
+            resolve(item, { length }) {
               if (!item.content) {
                 return null;
               }
-              return item.content.slice(0, args.length - 3) + '...';
+              const content = item.content as string;
+              if (content.length <= length) {
+                return content;
+              } else {
+                return content.slice(0, length - 3) + '...';
+              }
             },
           }),
+          graphQLArgs: { length: 500 }
         }),
       },
     }),
@@ -169,7 +175,11 @@ We can now perform the following query to get all the excerpts without over-fetc
 }
 ```
 
-## GraphQL Objects
+As well as passing in the `field` definition, we have also passed in `graphQLArgs: { length: 500 }`.
+This is the value used when displaying the field in the Admin UI, where we want to have a different length the default of `200`.
+Had we not specified `defaultValue` in our field, the `graphQLArgs` argument would be **required**, as the Admin UI would not be able to query this field without it.
+
+## GraphQL objects
 
 The examples above returned a scalar `String` value. Virtual fields can also be configured to return a GraphQL object.
 
@@ -217,9 +227,54 @@ This example is written in TypeScript, so we need to specify the type of the roo
 This type must correspond to the return type of the `resolve` function.
 
 Because our `virtual` field has an object type, we also need to provide a value for the option `graphQLReturnFragment`.
-This fragment tells the Keystone Admin UI which values to show in item page for this field.
+This fragment tells the Keystone Admin UI which values to show in the item page for this field.
 
-## GraphQL Types
+## Keystone types
+
+```
+export const lists = createSchema({
+  Post: list({
+    fields: {
+      title: text(),
+      content: text(),
+      publishDate: timestamp(),
+      author: relationship({ ref: 'Author.posts', many: false }),
+    },
+  }),
+  Author: list({
+    fields: {
+      name: text({ isRequired: true }),
+      email: text({ isRequired: true, isUnique: true }),
+      posts: relationship({ ref: 'Post.author', many: true }),
+      latestPost: virtual({
+        field: lists =>
+          schema.field({
+            type: lists.Post.types.output,
+            async resolve(item, args, context) {
+              const { posts } = await context.lists.Author.findOne({
+                where: { id: item.id },
+                query:
+                  'posts(
+                    orderBy: { publishDate: desc }
+                    first: 1
+                  ) { id }',
+              });
+              if (posts.length > 0) {
+                return context.db.lists.Post.findOne({
+                  where: { id: posts[0].id }
+                });
+              }
+            },
+          }),
+        graphQLReturnFragment: '{ title publishDate }',
+      }),
+    },
+  }),
+});
+
+```
+
+## GraphQL types
 
 ### Scalars
 
@@ -238,7 +293,7 @@ Keystone also includes some custom scalars that you can use:
 - `Upload`
 - `JSON`
 
-### Output Objects
+### Output objects
 
 To create an object type, you can use `schema.object`.
 
@@ -292,62 +347,6 @@ const Person: schema.ObjectType<PersonRootVal> = schema.object<PersonRootVal>()(
   fields: () => ({
     name: schema.field({ type: schema.String }),
     friends: schema.field({ type: schema.list(Person) }),
-  }),
-});
-```
-
-## Using GraphQL types from other lists
-
-To use GraphQL types from other lists in a virtual field (e.g. to express a polymorphic relationship), you can provide a function to the virtual field that accepts an object contains the GraphQL types for all the lists and returns the GraphQL field.
-
-```ts
-import { schema } from '@keystone-next/types';
-import { virtual, text, relationship } from '@keystone-next/fields';
-import { list, createSchema } from '@keystone-next/keystone/schema';
-
-createSchema({
-  Organisation: list({
-    fields: {
-      name: text(),
-      authoredPosts: relationship({ ref: 'Post.organisationAuthor', many: true }),
-    },
-  }),
-  Person: list({
-    fields: {
-      name: text(),
-      authoredPosts: relationship({ ref: 'Post.personAuthor', many: true }),
-    },
-  }),
-  Post: list({
-    fields: {
-      organisationAuthor: relationship({ ref: 'Organisation.authoredPosts' }),
-      personAuthor: relationship({ ref: 'Person.authoredPosts' }),
-      author: virtual({
-        field: lists =>
-          schema.field({
-            type: schema.union({
-              name: 'Author',
-              types: [lists.Person.types.output, lists.Organisation.types.output],
-            }),
-            async resolve(rootVal, args, context) {
-              const [personAuthors, organisationAuthors] = await Promise.all([
-                context.db.lists.Person.findMany({
-                  where: { authoredPosts_some: { id: rootVal.id.toString() } },
-                }),
-                context.db.lists.Organisation.findMany({
-                  where: { authoredPosts_some: { id: rootVal.id.toString() } },
-                }),
-              ]);
-              if (personAuthors.length) {
-                return { __typename: 'Person', ...personAuthors[0] };
-              }
-              if (organisationAuthors.length) {
-                return { __typename: 'Organisation', ...organisationAuthors[0] };
-              }
-            },
-          }),
-      }),
-    },
   }),
 });
 ```
