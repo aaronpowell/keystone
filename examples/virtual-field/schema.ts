@@ -111,8 +111,10 @@ export const lists = createSchema({
             async resolve(item, args, context) {
               const { posts } = await context.lists.Author.findOne({
                 where: { id: item.id },
-                query:
-                  'posts(orderBy: { publishDate: desc } where: { status: published } first: 1 ) { id }',
+                query: `posts(
+                    orderBy: { publishDate: desc }
+                    first: 1
+                  ) { id }`,
               });
               if (posts.length > 0) {
                 return context.db.lists.Post.findOne({ where: { id: posts[0].id } });
