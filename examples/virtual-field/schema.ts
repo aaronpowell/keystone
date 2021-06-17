@@ -50,9 +50,25 @@ export const lists = createSchema({
       // A virtual field returning a custom GraphQL object type.
       counts: virtual({
         field: schema.field({
-          type: postCounts,
+          type: schema.object<{
+            words: number;
+            sentences: number;
+            paragraphs: number;
+          }>()({
+            name: 'PostCounts',
+            fields: {
+              words: schema.field({ type: schema.Int }),
+              sentences: schema.field({ type: schema.Int }),
+              paragraphs: schema.field({ type: schema.Int }),
+            },
+          }),
           resolve(item: any) {
-            return { content: item.content || '' };
+            const content = item.content || '';
+            return {
+              words: content.split(' ').length,
+              sentences: content.split('.').length,
+              paragraphs: content.split('\n\n').length,
+            };
           },
         }),
         graphQLReturnFragment: '{ words sentences paragraphs }',
@@ -68,9 +84,15 @@ export const lists = createSchema({
             if (!item.content) {
               return null;
             }
-            return (item.content as string).slice(0, length - 3) + '...';
+            const content = item.content as string;
+            if (content.length <= length) {
+              return content;
+            } else {
+              return content.slice(0, length - 3) + '...';
+            }
           },
         }),
+        graphQLArgs: { length: 10 },
       }),
       // A virtual field which returns a type derived from a Keystone list.
       relatedPosts: virtual({

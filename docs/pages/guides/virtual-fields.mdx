@@ -74,7 +74,7 @@ The arguments are `(item, args, context, info)`.
 The `item` argument is the **internal item** representing the list item being queried.
 Refer to the [internal items guide](../guides/internal-items) for details on how to work with internal items in Keystone.
 The `args` argument represents the arguments passed to the field itself in the query.
-The `context` argument is a [`KeystoneContext`](./apis/context) object.
+The `context` argument is a [`KeystoneContext`](../apis/context) object.
 The `info` argument holds field-specific information relevant to the current query as well as the schema details.
 
 We can use the `item` and `context` arguments to query data in our Keystone system.
@@ -116,6 +116,7 @@ Continuing with our blog example, we may want to extract an excerpt of each blog
 We could query the full `Post.content` field for each post and then slice it in the client, but it would be nicer if we could ask for just the slice that we want from the GraphQL API.
 
 To do this we can use a `virtual` field which takes a `length` argument and then performs the `.slice()` operation as part of resolver function.
+This gives control of the size of the excerpt to the frontend while getting the backend to do the actual work.
 We use the `args` option to define the GraphQL field arguments we want to support.
 
 ```typescript
@@ -170,35 +171,53 @@ We can now perform the following query to get all the excerpts without over-fetc
 
 ## GraphQL Objects
 
-If you return an object type, you will need to provide `graphQLReturnFragment` so that the Admin UI knows what to fetch.
+The examples above returned a scalar `String` value. Virtual fields can also be configured to return a GraphQL object.
 
-```ts
-import { schema } from '@keystone-next/types';
-import { virtual } from '@keystone-next/fields';
-import { list } from '@keystone-next/keystone/schema';
+In our blog example we might want to provide some statistics on each blog post, such as the number of words, sentences, and paragraphs in the post.
+We can set up a GraphQL type called `PostConts` to represent this data using the `schema.object()` function.
 
-list({
-  fields: {
-    something: virtual({
-      field: schema.field({
-        type: schema.object<{ a: string; b: string }>()({
-          name: 'Something',
-          fields: {
-            a: schema.field({ type: schema.String }),
-            b: schema.field({ type: schema.String }),
-          },
+```typescript
+export default config({
+  lists: createSchema({
+    Post: list({
+      fields: {
+        content: text(),
+        counts: virtual({
+          field: schema.field({
+            type: schema.object<{
+              words: number;
+              sentences: number;
+              paragraphs: number;
+            }>()({
+              name: 'PostCounts',
+              fields: {
+                words: schema.field({ type: schema.Int }),
+                sentences: schema.field({ type: schema.Int }),
+                paragraphs: schema.field({ type: schema.Int }),
+              },
+            }),
+            resolve(item: any) {
+              const content = item.content || '';
+              return {
+                words: content.split(' ').length,
+                sentences: content.split('.').length,
+                paragraphs: content.split('\n\n').length,
+              };
+            },
+          }),
+          graphQLReturnFragment: '{ words sentences paragraphs }',
         }),
-        resolve() {
-          return { a: 'something', b: 'another thing' };
-        },
-      }),
-      graphQLReturnFragment: '{ a, b }',
+      },
     }),
-  },
+  }),
 });
 ```
 
-## Admin UI
+This example is written in TypeScript, so we need to specify the type of the root value expected by the `PostCounts` type.
+This type must correspond to the return type of the `resolve` function.
+
+Because our `virtual` field has an object type, we also need to provide a value for the option `graphQLReturnFragment`.
+This fragment tells the Keystone Admin UI which values to show in item page for this field.
 
 ## GraphQL Types
 
